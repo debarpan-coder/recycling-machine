@@ -6,34 +6,52 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     $item_id=$_POST["item"];
     $count=$_POST["quantity"];
     $sql="SELECT `id` FROM `customer` WHERE `customer_id` = '".$customer."'";
-    echo $sql;
     $res=mysqli_query($con,$sql);
     if($res->num_rows>0){
-        $sql="INSERT INTO `transaction`(`customer_id`, `item_id`, `count`) VALUES ('".$customer."','".$item_id."','".$count."')";
+        $data=mysqli_fetch_row($res);
+        $customer_id=$data[0];
+        $sql="INSERT INTO `transaction`(`customer_id`, `item_id`, `count`) VALUES ('".$customer_id."','".$item_id."','".$count."')";
         try {
             $res=mysqli_query($con,$sql);
         } catch (Exception $e) {
-            $e->getCode();
+            $e->getMessage();
         }
-        echo "Transaction Added";
     }else{
         echo "ERROR: Customer not found";
         $sql="INSERT INTO `customer`(`customer_id`) VALUES ('".$customer."')";
         $res=mysqli_query($con,$sql);
-        $sql="INSERT INTO `transaction`(`customer_id`, `item_id`, `count`) VALUES ('".$customer."','".$item_id."','".$count."')";
-        echo "Transaction Added";
+        $sql="SELECT `id` FROM `customer` WHERE `customer_id` = '".$customer."'";
+        $res=mysqli_query($con,$sql);
+        if($res->num_rows>0){
+            $data=mysqli_fetch_row($res);
+            $customer_id=$data[0];
+            $sql="INSERT INTO `transaction`(`customer_id`, `item_id`, `count`) VALUES ('".$customer_id."','".$item_id."','".$count."')";
+            try {
+                $res=mysqli_query($con,$sql);
+            } catch (Exception $e) {
+                $e->getMessage();
+            }
+        }
     }
     ?>
-
-    <h1>Receipt for Customer ID: {{ customer_id }}</h1>
-    <ul>
-        {% for item_type, count in receipt_details.items() %}
-        <li>{{ item_type }}: {{ count }}</li>
-        {% endfor %}
-    </ul>
-    <h3>Total Value: ${{ total_value }}</h3>
-    <a href="/RecMachine/">Return More Items</a>
-    <a href="summary.php">View Daily Summary</a>
+    <div class="container d-flex flex-column justify-content-center align-items-center">
+        <h1>Receipt for Customer ID: <?php echo $customer?></h1>
+        <ul>
+            <?php 
+            $sql="select i.item_type, i.size, i.deposit_value, sum(t.count) from item i, transaction t WHERE i.id=t.item_id and t.customer_id=".$customer_id." GROUP by i.item_type, i.size";
+            $total=0;
+            $res=mysqli_query($con,$sql);
+            if($res->num_rows>0){
+                while($data=mysqli_fetch_row($res)){
+                    $total+=$data[2]*$data[3];
+                    echo "<li>".$data[0]."(".$data[1].") : ".$data[3]."</li>";
+                }
+            }?>
+        </ul>
+        <h3>Total Value: ₹<?php echo $total?></h3>
+        <a href="/RecMachine/">Return More Items</a>
+        <a href="summary.php">View Daily Summary</a>
+    </div>
     
     <?php 
 }else{
