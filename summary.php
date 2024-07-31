@@ -19,7 +19,7 @@ require("dbcon.php");
     }
     ?>
     <h3>Total Number of Items: <?php echo $total?></h3>
-    <a href="/RecMachine/">Return More Items</a>
+    <a href="/recycling-machine/">Return More Items</a>
 </div>
 <?php
 include("footer.html");

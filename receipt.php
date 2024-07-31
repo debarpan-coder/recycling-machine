@@ -17,7 +17,6 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
             $e->getMessage();
         }
     }else{
-        echo "ERROR: Customer not found";
         $sql="INSERT INTO `customer`(`customer_id`) VALUES ('".$customer."')";
         $res=mysqli_query($con,$sql);
         $sql="SELECT `id` FROM `customer` WHERE `customer_id` = '".$customer."'";
@@ -49,7 +48,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
             }?>
         </ul>
         <h3>Total Value: ₹<?php echo $total?></h3>
-        <a href="/RecMachine/">Return More Items</a>
+        <a href="/recycling-machine/">Return More Items</a>
         <a href="summary.php">View Daily Summary</a>
     </div>
     
